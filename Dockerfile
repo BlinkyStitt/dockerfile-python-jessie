@@ -1,10 +1,16 @@
-FROM bwstitt/debian:jessie
+FROM python:3.6
+
+RUN groupadd -g 911 abc \
+ && useradd -m -s /bin/bash -g 911 -u 911 abc
+
+RUN echo "deb http://ftp.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
+
+ADD docker-apt-install.sh /usr/local/sbin/docker-apt-install
+
+ADD pip.conf /etc/
 
 ENV PATH /pyenv/bin:$PATH
-RUN docker-apt-install python3-virtualenv \
- && mkdir /pyenv \
+RUN mkdir /pyenv \
  && chown abc:abc /pyenv \
- && chroot --userspec=abc / python3 -m virtualenv -p python3 /pyenv \
- && chroot --userspec=abc / pip install -U pip==9.0.1 setuptools==34.3.1
-
-# TODO: put no-cache-dir into pip.conf
+ && pip install virtualenv==15.1.0 \
+ && chroot --userspec=abc / python3.6 -m virtualenv -p python3.6 /pyenv
